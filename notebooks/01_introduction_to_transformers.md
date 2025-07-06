@@ -1,44 +1,44 @@
-# Introduction aux Transformers
+# Introduction to Transformers
 
-Bienvenue dans le premier notebook de la série "Transformers Explained" ! Dans ce notebook, nous allons explorer les bases de l'architecture des Transformers, un modèle qui a révolutionné le traitement du langage naturel (TLN) et d'autres domaines.
+Welcome to the first notebook in the "Transformers Explained" series! In this notebook, we will explore the basics of the Transformer architecture, a model that has revolutionized natural language processing (NLP) and other fields.
 
-## Qu'est-ce qu'un Transformer ?
+## What is a Transformer?
 
-Le Transformer est une architecture de réseau neuronal introduite en 2017 par Vaswani et al. dans l'article "Attention Is All You Need". Contrairement aux modèles précédents comme les RNN (réseaux de neurones récurrents) et les CNN (réseaux de neurones convolutifs), le Transformer s'appuie entièrement sur des mécanismes d'attention, éliminant ainsi la nécessité de récurrence ou de convolutions.
+The Transformer is a neural network architecture introduced in 2017 by Vaswani et al. in the paper "Attention Is All You Need." Unlike previous models such as RNNs (recurrent neural networks) and CNNs (convolutional neural networks), the Transformer relies entirely on attention mechanisms, thereby eliminating the need for recurrence or convolutions.
 
-## Pourquoi les Transformers sont-ils importants ?
+## Why are Transformers important?
 
-Avant les Transformers, les modèles séquentiels comme les RNN (LSTM, GRU) étaient dominants pour les tâches de TLN. Cependant, ils souffraient de limitations, notamment la difficulté à traiter les dépendances à longue portée et la parallélisation limitée. Les Transformers ont résolu ces problèmes en introduisant le mécanisme d'auto-attention, permettant au modèle de traiter toutes les parties d'une séquence simultanément.
+Before Transformers, sequential models like RNNs (LSTM, GRU) dominated NLP tasks. However, they suffered from limitations, notably difficulty handling long-range dependencies and limited parallelization. Transformers solved these problems by introducing the self-attention mechanism, allowing the model to process all parts of a sequence simultaneously.
 
-## Architecture Générale
+## General Architecture
 
-Un Transformer typique se compose de deux parties principales :
+A typical Transformer consists of two main parts:
 
-1.  **Encodeur** : Traite la séquence d'entrée et produit une représentation contextuelle.
-2.  **Décodeur** : Utilise la représentation de l'encodeur pour générer la séquence de sortie.
+1. **Encoder**: Processes the input sequence and produces a contextual representation.  
+2. **Decoder**: Uses the encoder’s representation to generate the output sequence.
 
-Chaque encodeur et décodeur est composé de plusieurs couches identiques empilées.
+Each encoder and decoder is composed of several identical stacked layers.
 
-### Blocs d'Encodeur
+### Encoder Blocks
 
-Chaque bloc d'encodeur contient deux sous-couches :
+Each encoder block contains two sublayers:
 
--   **Mécanisme d'auto-attention multi-têtes** : Permet au modèle de pondérer différentes parties de la séquence d'entrée.
--   **Réseau de neurones feed-forward positionnel** : Applique une transformation linéaire à chaque position.
+- **Multi-head self-attention mechanism**: Allows the model to weigh different parts of the input sequence.  
+- **Position-wise feed-forward neural network**: Applies a linear transformation to each position.
 
-### Blocs de Décodeur
+### Decoder Blocks
 
-Chaque bloc de décodeur contient trois sous-couches :
+Each decoder block contains three sublayers:
 
--   **Mécanisme d'auto-attention masqué multi-têtes** : Similaire à l'encodeur, mais masque les positions futures pour éviter la triche.
--   **Mécanisme d'attention multi-têtes Encodeur-Décodeur** : Permet au décodeur de se concentrer sur des parties pertinentes de la sortie de l'encodeur.
--   **Réseau de neurones feed-forward positionnel**.
+- **Masked multi-head self-attention mechanism**: Similar to the encoder but masks future positions to prevent cheating.  
+- **Multi-head encoder-decoder attention mechanism**: Allows the decoder to focus on relevant parts of the encoder output.  
+- **Position-wise feed-forward neural network**.
 
-## Encodage Positionnel
+## Positional Encoding
 
-Puisque les Transformers ne contiennent pas de récurrence ou de convolution, ils n'ont intrinsèquement aucune notion de l'ordre des mots dans la séquence. Pour remédier à cela, des "encodages positionnels" sont ajoutés aux embeddings d'entrée. Ces encodages fournissent des informations sur la position relative ou absolue des tokens dans la séquence.
+Since Transformers contain no recurrence or convolution, they intrinsically have no notion of word order in the sequence. To address this, "positional encodings" are added to the input embeddings. These encodings provide information about the relative or absolute position of tokens in the sequence.
 
-## Exemple Simplifié (Pseudo-code)
+## Simplified Example (Pseudo-code)
 
 ```python
 import torch
@@ -58,7 +58,7 @@ class PositionalEncoding(nn.Module):
     def forward(self, x):
         return x + self.pe[:x.size(0), :]
 
-# Un exemple très simplifié d'une couche d'encodeur
+# A very simplified example of an encoder layer
 class SimpleEncoderLayer(nn.Module):
     def __init__(self, d_model, num_heads, dim_feedforward, dropout):
         super(SimpleEncoderLayer, self).__init__()
@@ -80,33 +80,27 @@ class SimpleEncoderLayer(nn.Module):
         src = self.norm2(src)
         return src
 
-# Dimensions du modèle
-d_model = 512  # Dimension des embeddings
-num_heads = 8  # Nombre de têtes d'attention
-dim_feedforward = 2048 # Dimension du réseau feed-forward
+# Model dimensions
+d_model = 512  # Embedding dimension
+num_heads = 8  # Number of attention heads
+dim_feedforward = 2048  # Feed-forward network dimension
 dropout = 0.1
 
-# Création d'une couche d'encodeur simple
+# Create a simple encoder layer
 encoder_layer = SimpleEncoderLayer(d_model, num_heads, dim_feedforward, dropout)
 
-# Création d'un encodage positionnel
+# Create a positional encoding
 pos_encoder = PositionalEncoding(d_model)
 
-# Exemple d'entrée (batch_size, sequence_length, d_model)
-# Supposons une séquence de 10 mots, avec un batch de 2
+# Example input (sequence_length, batch_size, d_model)
+# Suppose a sequence of 10 words, batch size 2
 input_sequence = torch.rand(10, 2, d_model)
 
-# Ajout de l'encodage positionnel
+# Add positional encoding
 input_with_pos = pos_encoder(input_sequence)
 
-# Passage à travers la couche d'encodeur
+# Pass through encoder layer
 output = encoder_layer(input_with_pos)
 
-print(f"Shape de l'entrée: {input_sequence.shape}")
-print(f"Shape de la sortie de l'encodeur: {output.shape}")
-```
-
-## Conclusion
-
-Ce notebook a fourni une introduction aux concepts fondamentaux des Transformers. Dans les notebooks suivants, nous plongerons plus en détail dans le mécanisme d'attention et construirons un Transformer complet étape par étape.
-
+print(f"Input shape: {input_sequence.shape}")
+print(f"Encoder output shape: {output.shape}")
